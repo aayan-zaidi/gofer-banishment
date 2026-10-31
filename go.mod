@@ -1,4 +1,4 @@
-module slantedskater
+module gofer
 
 go 1.26.4
 
