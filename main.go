@@ -1,3 +1,16 @@
+// I COULDNT WAIT FOR YOU TO CALL AND CLEAR THE CUPBOARDS
+// BUT NOW YOURE GOING TO LEAVE WIHT NATINK BUT A SIGN
+// ANOTHER EVENIN ILL BE SITTIN READIN INBETWEEN YOUR LINES
+// BECAUSE I MISS YOU ALL THE TIME
+// SO GET AWAY ANOTHER WAY TO FEEL WHAT YOU DIDNT WANT YOURELF TO KNOW AND LET YOURSELF GO
+// YOU KNOW YOU DIDNT LOSE YOUR SELF CONTROL
+// LETS START AT THe RAINBOW
+// sorry. wish we could go to the moon together
+// heres some trauma for you muheheehhehe
+
+
+// im sorry for making this btw, first game tho so still pretty proud
+
 package main
 
 import (
@@ -19,16 +32,26 @@ type RockItem struct {
 }
 
 type Game struct{
+	introDone bool
+	gameOber bool
+	
 	goferSprite *ebiten.Image
-	bg1 *ebiten.Image
-	bg2	*ebiten.Image
+	gameOberOverlay *ebiten.Image
 	goferX float64
 	goferY float64
 	direction int
+	
+	bg1 *ebiten.Image
+	bg2	*ebiten.Image
 	bgY float64
+	
+	loreThingy *ebiten.Image
+	
 	gameState int
-	currentAngle float64
 	score int
+	
+	currentSpeed float64
+	currentAngle float64
 
 	rockSprites [3]*ebiten.Image
 	rocks [3]RockItem
@@ -39,19 +62,22 @@ func (g *Game) resetGame() error {
 		g.goferY = 300
 		g.direction = 0
 		g.bgY = 0
+		g.currentSpeed = 10.0
 		g.gameState = 0
 		g.currentAngle = 0
 		g.score = 0 
+		g.gameOber = false
 		for i := 0; i < 3; i++ {
 			g.rocks[i].y = float64(rand.Intn(400)) + 850 + float64(i * 250)
 			g.rocks[i].x = float64(rand.Intn(700))
 		}
+		
 		return nil
 }
 
 func (g *Game) UpdateBackground() error {
 		if g.direction != 0 {
-		g.bgY += 9
+		g.bgY += g.currentSpeed
 		if g.bgY > 800 {
 			g.bgY = 0
 		}
@@ -99,7 +125,7 @@ func (g *Game) UpdateRocks() error {
 	}
 
 	for i := 0; i < 3; i++ {
-		g.rocks[i].y -= 6.7
+		g.rocks[i].y -= g.currentSpeed
 
 	if g.rocks[i].y < -50 {
 		// DO THIS TOMMOROW CHAGNE IT
@@ -109,6 +135,7 @@ func (g *Game) UpdateRocks() error {
 
 	padding := 10.0
 
+	// collision
 	goferW, goferH := g.goferSprite.Bounds().Dx(), g.goferSprite.Bounds().Dy()
 	rockW, rockH := g.rockSprites[i].Bounds().Dx(), g.rockSprites[i].Bounds().Dy()
 
@@ -125,14 +152,28 @@ func (g *Game) UpdateRocks() error {
 	if playerLeft < rockRight && playerRight > rockLeft &&
 		playerTop < rockBottom && playerBottom > rockTop {
 		g.gameState = 1 
+		g.gameOber = true
 	}}
 	
 	return nil
-
 }
 
 // runs 60 times a secon, main loop
 func (g *Game) Update() error {
+	// again quick checks and sh
+	if !g.introDone {
+		if ebiten.IsKeyPressed(ebiten.KeySpace) {
+			g.introDone = true
+		}
+		return nil 
+	}
+	if g.gameOber {
+		if ebiten.IsKeyPressed(ebiten.KeySpace) {
+			g.gameOber = false
+		}
+		return nil 
+	}
+
 	if g.gameState == 1 {
 		if ebiten.IsKeyPressed(ebiten.KeySpace) {
 			g.resetGame()
@@ -140,6 +181,7 @@ func (g *Game) Update() error {
 		return nil
 	}
 
+	// i feel so proud not having everything in one function bro
 	g.UpdatePlayer()
 	g.UpdateBackground()
 	g.UpdateRocks()	
@@ -148,6 +190,24 @@ func (g *Game) Update() error {
 
 // draws za sproits
 func (g *Game) Draw(screen *ebiten.Image) {
+	// quick returns and checks
+	if g.introDone == false {
+		screen.DrawImage(g.loreThingy, nil)
+		return
+	}
+
+	if g.gameOber == true {
+		screen.DrawImage(g.gameOberOverlay, nil)
+		return
+	}
+
+
+	g.currentSpeed = 10.0 + float64(g.score)/500.0
+
+	if g.currentSpeed > 30.0 {
+		g.currentSpeed = 30.0
+	}
+
 	if g.bg1 != nil && g.bg2 != nil {
 		options := &ebiten.DrawImageOptions{}
 		options.GeoM.Translate(0, -g.bgY)
@@ -179,7 +239,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		GeoM: geom,
 	})
 
-	scoreText := strconv.Itoa(g.score) + " MILES "
+	scoreText := strconv.Itoa(g.score) + " MILES"
 		
 		
 	textWidth := len(scoreText) * 6
@@ -206,6 +266,19 @@ func main() {
 		log.Println("Failed to load gofer sprite:", err)
 	}
 
+	// loadin za gofer sproit
+	gameOberOverlay, _, err := ebitenutil.NewImageFromFile("assets/gameober.png")
+	if err != nil {
+		log.Println("Failed to load game oberlay:", err)
+	}
+
+
+	// uhh ooga booga
+	loreThingy, _, err := ebitenutil.NewImageFromFile("assets/lore.png")
+	if err != nil {
+		log.Println("Failed to load lore sprite:", err)
+	}
+
 	var loadedRocks [3]*ebiten.Image
 	for i := 0; i < 3; i++ {
 		path := "assets/rock" + strconv.Itoa(i+1) + ".png"
@@ -214,17 +287,17 @@ func main() {
 			log.Println("Failed to load rock sprite:", err)
 		} 
 		loadedRocks[i] = rockSprite	
-		}
-
-
-	// loadin background images
-	bg1, _, err := ebitenutil.NewImageFromFile("assets/bg2.png")
-	if err != nil {
-		log.Println("Failed to load background image 1:", err)
 	}
-	bg2, _, err := ebitenutil.NewImageFromFile("assets/bg2.png")
+
+
+	// loadin bg images
+	bg1, _, err := ebitenutil.NewImageFromFile("assets/bg.png")
 	if err != nil {
-		log.Println("Failed to load background image 2:", err)
+		log.Println("Failed to load background image:", err)
+	}
+	bg2, _, err := ebitenutil.NewImageFromFile("assets/bg.png")
+	if err != nil {
+		log.Println("Failed to load background image:", err)
 	}
 
 	// gaem
@@ -233,15 +306,21 @@ func main() {
 		goferX: 400,
 		goferY: 300,
 		direction: 0,
+		gameOber: false,
+		gameOberOverlay: gameOberOverlay,
 		bg1: bg1,
 		bg2: bg2,
 		bgY: 0,
 		score: 0,
+		currentSpeed: 10.0,
+		loreThingy: loreThingy,
+		gameState: 0,
+		introDone: false,
 		rockSprites: loadedRocks,
 		rocks: [3]RockItem{
 			{ x: float64(rand.Intn(700)), y: float64(rand.Intn(400)) + 850 },
-			{ x: float64(rand.Intn(700)), y: float64(rand.Intn(400)) + 1200 },
-			{ x: float64(rand.Intn(700)), y: float64(rand.Intn(400)) + 1450 },
+			{ x: float64(rand.Intn(700)), y: float64(rand.Intn(400)) + 1300 },
+			{ x: float64(rand.Intn(700)), y: float64(rand.Intn(400)) + 1550 },
 		},
 	}
 
@@ -250,3 +329,5 @@ func main() {
 		log.Fatal(err)
 	}
 }
+
+// ts pmod me so much
