@@ -12,4 +12,4 @@ A and D to move (left and right), along with the left and right arrow keys. Spac
 
 ## install
 
-download the .zip file from the releases page ("github.com/aayan-zaidi/gofer-banishment/releases"), extract it, PLAY THE GAME YAYAYAYYAYAY
+download the .zip file from the [releases page](https://github.com/aayan-zaidi/gofer-banishment/releases), extract it, PLAY THE GAME YAYAYAYYAYAY
