@@ -10,3 +10,6 @@ uhh it moves and like u dodge the potatoes and like yeah thats pretty much it
 
 A and D to move (left and right), along with the left and right arrow keys. Spacebar to start and restart.
 
+## install
+
+download the .zip file from the releases page ("github.com/aayan-zaidi/gofer-banishment/releases"), extract it, PLAY THE GAME YAYAYAYYAYAY
